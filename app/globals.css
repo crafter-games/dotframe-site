@@ -54,14 +54,6 @@ body {
   --color-sun: #f7e08e;
 }
 
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
 
 /* syntax: one palette for every snippet on the page */
 .tk-prompt,
@@ -128,14 +120,14 @@ html.lenis body {
   box-shadow: 0 0 0 4px rgb(169 112 255 / 0.2);
 }
 
-.lenis .reveal {
+.motion .reveal {
   opacity: 0;
   transform: translateY(24px);
   transition:
     opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
     transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.lenis .reveal.in {
+.motion .reveal.in {
   opacity: 1;
   transform: none;
 }
