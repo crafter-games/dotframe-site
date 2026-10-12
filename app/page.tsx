@@ -1,13 +1,6 @@
 import Image from "next/image";
 import { Copy } from "@/components/copy";
-import {
-  Apple,
-  Discord,
-  Globe,
-  Laptop,
-  Phone,
-  Windows,
-} from "@/components/icons";
+import { Apple, Discord, Globe, Phone, Windows } from "@/components/icons";
 import { Mark } from "@/components/logo";
 import { Scrubber } from "@/components/scrubber";
 import { Smooth } from "@/components/smooth";
@@ -113,87 +106,102 @@ const GAME = `export function step(game: Game, inputs: number[]): void {
 const targets = [
   {
     name: "Web",
-    note: "WebGPU, and Canvas 2D on phones without it",
-    cmd: "dotframe build web",
-    icon: <Globe className="size-6" />,
+    note: "WebGPU, Canvas 2D on phones",
+    cmd: "build web",
+    icon: Globe,
   },
   {
     name: "iPhone",
-    note: "a native app, no web view",
-    cmd: "dotframe build ios",
-    icon: (
-      <span className="relative">
-        <Phone className="size-6" />
-      </span>
-    ),
+    note: "native app, no web view",
+    cmd: "build ios",
+    icon: Phone,
   },
   {
     name: "macOS",
-    note: "one binary, SDL3 + wgpu-native",
-    cmd: "dotframe build macos",
-    icon: <Apple className="size-6" />,
+    note: "one binary, SDL3 + wgpu",
+    cmd: "build macos",
+    icon: Apple,
   },
   {
     name: "Windows",
-    note: "cross-built from your Mac",
+    note: "cross-built from a Mac",
     cmd: "build-native.sh windows",
-    icon: <Windows className="size-5" />,
+    icon: Windows,
   },
   {
     name: "Discord",
-    note: "an Activity in the voice channel",
-    cmd: "dotframe build discord",
-    icon: <Discord className="size-6" />,
+    note: "an Activity in voice",
+    cmd: "build discord",
+    icon: Discord,
   },
 ];
 
 const games = [
   {
     name: "Espresso perfecto",
-    kind: "hold, pour, release on the line",
+    kind: "Hold, pour, release on the line",
+    where: "Web · phones",
     img: "/media/espresso.gif",
     href: "https://crafter.run/es/events/hot-reload",
     repo: "https://github.com/crafter-games/espresso",
-    span: "lg:row-span-2",
-    fit: "aspect-[9/16] lg:aspect-auto lg:h-full object-top",
   },
   {
     name: "Craft Ones",
-    kind: "1v1 artillery, online and in Discord",
+    kind: "1v1 artillery with Peruvian critters",
+    where: "Online · Discord",
     img: "/media/ones.jpg",
     href: "https://craft-ones.crafter.run",
     repo: "https://github.com/crafter-games/craft-ones",
-    span: "",
-    fit: "aspect-video",
   },
   {
     name: "Crafter Smash",
-    kind: "platform fighter, bring a gamepad",
+    kind: "Platform fighter, bring a gamepad",
+    where: "Web · local 2P",
     img: "/media/smash.jpg",
     href: "https://crafter-smash-dotframe.vercel.app",
     repo: "https://github.com/crafter-games/crafter-smash-dotframe",
-    span: "",
-    fit: "aspect-video",
   },
   {
     name: "The Ones",
     kind: "3D horror, 60 fps on an iPhone 15 Plus",
+    where: "Windows · iPhone",
     img: "/media/ones-game.jpg",
     href: "https://theones.crafter.games",
     repo: "https://github.com/crafter-games/the-ones-game",
-    span: "lg:col-span-2",
-    fit: "aspect-video lg:aspect-[21/9]",
   },
 ];
 
-function Label({ n, children }: { n: string; children: React.ReactNode }) {
+function Edge({ n, children }: { n: string; children: React.ReactNode }) {
   return (
-    <p className="mb-10 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.2em] text-mute">
-      <span className="rounded border border-line px-1.5 py-0.5 text-dot tabular-nums">
-        f{n}
-      </span>
-      {children}
-    </p>
+    <div className="mb-12 flex items-center gap-4 font-mono text-xs font-bold uppercase tracking-[0.18em]">
+      <span className="text-pencil">▸ {n}</span>
+      <span className="shrink-0">{children}</span>
+      <span className="h-[2px] grow bg-ink" />
+      <span className="hidden text-mute sm:inline">dotframe 0.3.3</span>
+    </div>
+  );
+}
+
+function Reel() {
+  const row = [...targets, ...targets];
+  return (
+    <div className="film relative overflow-hidden py-6" aria-hidden="true">
+      <div className="sprockets absolute inset-x-0 top-2 h-2" />
+      <div className="reel flex w-max items-center gap-14 px-7">
+        {row.map((t, i) => (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: duplicated row for the loop
+            key={i}
+            className="flex items-center gap-4"
+          >
+            <t.icon className="size-7" />
+            <span className="display text-5xl">{t.name}</span>
+            <span className="ml-8 size-2 rounded-full bg-pencil" />
+          </span>
+        ))}
+      </div>
+      <div className="sprockets absolute inset-x-0 bottom-2 h-2" />
+    </div>
   );
 }
 
@@ -201,111 +209,117 @@ export default function Home() {
   return (
     <main className="relative overflow-x-clip">
       <Smooth />
-      <div className="frames pointer-events-none absolute inset-x-0 top-0 h-[900px]" />
 
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-8">
-        <header className="flex items-center justify-between py-6">
-          <a
-            href="/"
-            className="flex items-center gap-2 font-mono text-sm font-medium"
-          >
-            <Mark />
+      <div className="mx-auto max-w-6xl px-4 sm:px-8">
+        <header className="flex items-center justify-between border-b-2 border-ink py-4 font-mono text-xs font-bold uppercase tracking-[0.14em]">
+          <a href="/" className="flex items-center gap-2">
+            <Mark className="size-5" />
             dotframe
           </a>
-          <nav className="flex items-center gap-5 font-mono text-xs text-mute">
-            <a href="#play" className="hidden hover:text-paper sm:inline">
-              play
+          <span className="hidden text-mute md:inline">
+            roll 0.3.3 · MIT · TypeScript
+          </span>
+          <nav className="flex items-center gap-5">
+            <a href="#play" className="hidden hover:text-pencil sm:inline">
+              Play
             </a>
-            <a href="#ship" className="hidden hover:text-paper sm:inline">
-              ship
+            <a href="#games" className="hidden hover:text-pencil sm:inline">
+              Games
             </a>
-            <a href="#games" className="hidden hover:text-paper sm:inline">
-              games
-            </a>
-            <a href={REPO} className="hover:text-paper">
-              github
+            <a href={REPO} className="hover:text-pencil">
+              GitHub ↗
             </a>
           </nav>
         </header>
+        <div className="mt-[3px] h-[2px] bg-ink" />
 
-        <section className="grid items-center gap-12 pt-16 pb-24 lg:grid-cols-[1.05fr_1fr] lg:pt-24 lg:pb-32">
+        <section className="grid items-start gap-14 pt-14 pb-28 lg:grid-cols-[1fr_1.05fr] lg:pt-20">
           <div>
-            <a
-              href="https://www.npmjs.com/package/dotframe"
-              className="inline-flex items-center gap-2 rounded-full border border-line bg-ink-2 px-3 py-1 font-mono text-xs text-mute hover:text-paper"
-            >
-              <span className="size-1.5 rounded-full bg-dot" />
-              0.3.3 · Canvas 2D fallback for phones
-            </a>
-            <h1 className="mt-7 text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-balance sm:text-7xl">
-              The game engine your agent can play
-              <span className="text-dot">.</span>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-pencil">
+              ▸ F 0000 · a game engine
+            </p>
+            <h1 className="display mt-5 text-[clamp(3.5rem,7.4vw,6.6rem)] [font-variation-settings:'wdth'_75]">
+              The engine your agent can{" "}
+              <span className="relative inline-block">
+                play
+                <svg
+                  viewBox="0 0 200 20"
+                  className="absolute -bottom-3 left-0 w-full text-pencil"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 12c40-6 90-9 194-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              <span className="text-pencil">.</span>
             </h1>
-            <p className="mt-7 max-w-lg text-lg leading-relaxed text-mute text-pretty">
+            <p className="mt-10 max-w-md text-lg leading-relaxed">
               Write the game once in TypeScript. Ship it to the web, iPhone,
               macOS, Windows and Discord. Every frame is deterministic, so your
-              agent can play it headless, look at any frame, and find the bug
+              agent plays it headless, looks at any frame, and finds the bug
               before your players do.
             </p>
-            <div className="mt-10 flex max-w-lg items-center justify-between gap-4 rounded-lg border border-line bg-ink-2 px-4 py-3">
-              <Code lang="sh" className="text-paper">
-                $ npm i -g dotframe
-              </Code>
+            <div className="mt-10 flex max-w-md items-center justify-between gap-4 border-2 border-ink bg-paper px-4 py-3 shadow-[4px_4px_0_var(--color-ink)]">
+              <Code lang="sh">$ npm i -g dotframe</Code>
               <Copy text="npm i -g dotframe" />
             </div>
-            <p className="mt-3 font-mono text-xs text-mute">
+            <p className="mt-4 font-mono text-xs text-mute">
               then tell your agent:{" "}
-              <span className="text-paper">dotframe skills get core</span>
-            </p>
-          </div>
-
-          <div className="reveal">
-            <Scrubber />
-            <p className="mt-4 text-center font-mono text-xs text-mute">
-              Drag it back. Same frame, same checksum, every time.
-              <span className="hidden sm:inline">
-                {" "}
-                <kbd className="rounded border border-line px-1">space</kbd>{" "}
-                <kbd className="rounded border border-line px-1">←</kbd>{" "}
-                <kbd className="rounded border border-line px-1">→</kbd>
+              <span className="font-bold text-ink">
+                dotframe skills get core
               </span>
             </p>
           </div>
+          <div className="lg:pt-6">
+            <Scrubber />
+          </div>
         </section>
+      </div>
 
-        <section id="play" className="border-t border-line py-24 sm:py-32">
-          <Label n="001">how an agent plays</Label>
-          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+      <Reel />
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-8">
+        <section id="play" className="py-28">
+          <Edge n="01A">How an agent plays</Edge>
+          <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="reveal flex flex-col gap-6">
-              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-balance">
+              <h2 className="display text-6xl">
                 No screen needed. Until it wants one.
               </h2>
-              <p className="leading-relaxed text-mute">
+              <p className="leading-relaxed">
                 The sim is pure state and a fixed step. An agent mashes inputs
                 through 600 frames in a millisecond and reads the state back as
                 JSON. When it needs to see, it renders that exact frame through
                 the real WebGPU renderer and opens the PNG.
               </p>
-              <p className="leading-relaxed text-mute">
+              <p className="leading-relaxed">
                 Record a run once and it becomes the test: every change after
                 that has to land on the same checksums. That is how a spill that
                 kept taking lives in a loop showed up, at{" "}
-                <span className="font-mono text-paper">lives: -12</span>.
+                <span className="bg-ink px-1 font-mono text-paper">
+                  lives: -12
+                </span>
+                .
               </p>
-              <div className="flex items-center gap-4 rounded-lg border border-line bg-ink-2 p-3">
+              <figure className="relative mt-2 flex w-fit items-end gap-4">
                 <Image
                   src="/media/f-600.png"
                   alt="Frame 600 of Espresso perfecto, rendered by dotframe snap"
-                  width={72}
-                  height={128}
-                  className="rounded"
+                  width={110}
+                  height={196}
+                  className="rotate-[-3deg] border-2 border-ink shadow-[4px_4px_0_var(--color-ink)]"
                 />
-                <p className="font-mono text-xs leading-relaxed text-mute">
-                  <span className="text-paper">snap-600.png</span>
+                <figcaption className="pb-2 font-hand text-lg leading-tight text-pencil">
+                  what the agent
                   <br />
-                  what the agent saw at frame 600
-                </p>
-              </div>
+                  saw at F 0600
+                </figcaption>
+              </figure>
             </div>
             <div className="reveal">
               <Terminal tabs={tabs} />
@@ -313,25 +327,27 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-t border-line py-24 sm:py-32">
-          <Label n="002">the whole contract</Label>
-          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="reveal overflow-hidden rounded-lg border border-line bg-ink-2">
-              <div className="border-b border-line px-4 py-2 font-mono text-xs text-mute">
-                game.ts <span className="text-line">·</span> dotframe new
-                my-game --template blank
+        <section className="pb-28">
+          <Edge n="02A">The whole contract</Edge>
+          <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="reveal border-2 border-ink bg-paper shadow-[6px_6px_0_var(--color-ink)]">
+              <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase">
+                <span>game.ts</span>
+                <span className="text-mute">
+                  dotframe new my-game --template blank
+                </span>
               </div>
-              <Code lang="ts" className="p-5 text-paper/90">
+              <Code lang="ts" className="p-5">
                 {GAME}
               </Code>
             </div>
-            <div className="reveal flex flex-col justify-center gap-6">
-              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-balance">
-                State in, inputs in, next frame out.
+            <div className="reveal flex flex-col gap-6">
+              <h2 className="display text-6xl">
+                State in. Inputs in. Next frame out.
               </h2>
-              <p className="leading-relaxed text-mute">
+              <p className="leading-relaxed">
                 All the state lives in one object and only changes in{" "}
-                <span className="font-mono text-paper">step()</span>. That is
+                <span className="font-mono font-bold">step()</span>. That is
                 what lets dotframe replay it, snapshot it, and roll it back for
                 netplay. Render only reads.
               </p>
@@ -339,127 +355,155 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="ship" className="border-t border-line py-24 sm:py-32">
-          <Label n="003">one codebase, five places</Label>
-          <h2 className="reveal max-w-2xl text-4xl font-semibold leading-tight tracking-[-0.03em] text-balance">
-            Native builds have no JavaScript engine inside.
-          </h2>
-          <p className="reveal mt-5 max-w-xl leading-relaxed text-mute">
-            <a
-              href="https://scriptc.dev"
-              className="text-paper underline decoration-line underline-offset-4 hover:decoration-dot"
-            >
-              scriptc
-            </a>{" "}
-            compiles your TypeScript to a real binary. The web build runs the
-            same code on WebGPU.
-          </p>
-          <ul className="reveal mt-12 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
-            {targets.map((t) => (
+        <section id="ship" className="pb-28">
+          <Edge n="03A">One codebase, five places</Edge>
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+            <h2 className="reveal display text-6xl">
+              No JavaScript engine in the binary.
+            </h2>
+            <p className="reveal self-end leading-relaxed">
+              <a
+                href="https://scriptc.dev"
+                className="font-bold underline decoration-pencil decoration-2 underline-offset-4"
+              >
+                scriptc
+              </a>{" "}
+              compiles your TypeScript to a real native binary over SDL3 and
+              wgpu-native. The web build runs the same code on WebGPU, and 2D
+              games fall back to Canvas 2D on phones without it.
+            </p>
+          </div>
+          <ul className="reveal mt-12 grid border-t-2 border-l-2 border-ink sm:grid-cols-2 lg:grid-cols-5">
+            {targets.map((t, i) => (
               <li
                 key={t.name}
-                className="group flex flex-col gap-6 bg-ink-2 p-5 transition-colors hover:bg-ink"
+                className="group flex flex-col gap-8 border-r-2 border-b-2 border-ink p-5 transition-colors hover:bg-ink hover:text-paper"
               >
-                <span className="flex size-10 items-center justify-center rounded-md border border-line text-paper transition-colors group-hover:border-dot group-hover:text-dot">
-                  {t.icon}
-                </span>
-                <div>
-                  <h3 className="text-lg font-medium tracking-tight">
-                    {t.name}
-                  </h3>
-                  <p className="mt-1 text-sm text-mute">{t.note}</p>
+                <div className="flex items-start justify-between">
+                  <t.icon className="size-8" />
+                  <span className="font-mono text-[10px] font-bold text-mute group-hover:text-paper/60">
+                    0{i + 1}
+                  </span>
                 </div>
-                <Code lang="sh" className="mt-auto text-[11px] leading-5">
-                  {t.cmd}
-                </Code>
+                <div>
+                  <h3 className="display text-4xl">{t.name}</h3>
+                  <p className="mt-2 text-sm text-mute group-hover:text-paper/70">
+                    {t.note}
+                  </p>
+                </div>
+                <p className="mt-auto font-mono text-[11px] font-bold">
+                  <span className="text-pencil">$</span> {t.cmd}
+                </p>
               </li>
             ))}
           </ul>
         </section>
 
-        <section id="games" className="border-t border-line py-24 sm:py-32">
-          <Label n="004">made with dotframe</Label>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {games.map((g) => (
-              <article
+        <section id="games" className="pb-28">
+          <Edge n="04A">Made with dotframe</Edge>
+          <ol className="reveal border-t-2 border-ink">
+            {games.map((g, i) => (
+              <li
                 key={g.name}
-                className={`reveal group flex flex-col overflow-hidden rounded-lg border border-line bg-ink-2 transition-colors hover:border-dot/50 ${g.span}`}
+                className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-ink py-5 sm:grid-cols-[2.5rem_9rem_1fr_auto_auto]"
               >
+                <span className="font-mono text-xs font-bold">Nº 0{i + 1}</span>
                 <a
                   href={g.href}
-                  className="relative block grow overflow-hidden bg-ink"
+                  className="relative col-span-2 block overflow-hidden border-2 border-ink sm:col-span-1"
                 >
                   <Image
                     src={g.img}
                     alt={`${g.name} gameplay`}
-                    width={960}
-                    height={540}
+                    width={480}
+                    height={270}
                     unoptimized={g.img.endsWith(".gif")}
-                    className={`w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] ${g.fit}`}
+                    className={`aspect-video w-full object-cover grayscale ${g.img.endsWith(".gif") ? "object-[50%_30%]" : ""} transition duration-300 group-hover:grayscale-0`}
                   />
-                  <span className="absolute top-3 right-3 rounded-full bg-ink/80 px-2.5 py-1 font-mono text-[11px] text-paper opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
-                    play ↗
-                  </span>
                 </a>
-                <div className="flex items-end justify-between gap-4 p-4">
-                  <div>
-                    <h3 className="font-medium tracking-tight">{g.name}</h3>
-                    <p className="mt-1 text-sm text-mute">{g.kind}</p>
-                  </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <a
+                    href={g.href}
+                    className="display text-4xl group-hover:text-pencil sm:text-5xl"
+                  >
+                    {g.name}
+                  </a>
+                  <p className="mt-1 text-sm text-mute">{g.kind}</p>
+                </div>
+                <span className="hidden font-mono text-xs font-bold uppercase tracking-wider sm:inline">
+                  {g.where}
+                </span>
+                <span className="flex gap-3 font-mono text-xs font-bold uppercase">
+                  <a
+                    href={g.href}
+                    className="bg-ink px-2.5 py-1.5 text-paper hover:bg-pencil"
+                  >
+                    Play ↗
+                  </a>
                   <a
                     href={g.repo}
-                    className="font-mono text-xs text-mute hover:text-paper"
+                    className="border-2 border-ink px-2 py-1 hover:bg-ink hover:text-paper"
                   >
-                    source
+                    Src
                   </a>
-                </div>
-              </article>
+                </span>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
-        <section id="badge" className="border-t border-line py-24 sm:py-32">
-          <Label n="005">shipped one?</Label>
-          <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <section id="badge" className="pb-28">
+          <Edge n="05A">Shipped one?</Edge>
+          <div className="grid items-center gap-14 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="reveal flex flex-col gap-6">
-              <h2 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-balance">
-                Wear the badge.
-              </h2>
-              <p className="leading-relaxed text-mute">
+              <h2 className="display text-6xl">Wear the badge.</h2>
+              <p className="leading-relaxed">
                 Put it in your README so the next person finds the engine.
               </p>
-              {/* biome-ignore lint/performance/noImgElement: the exact SVG games embed */}
-              <img
-                src={`${RAW}/made-with-dotframe-dark.svg`}
-                alt="Made with dotframe"
-                height={32}
-                className="h-8 w-auto self-start"
-              />
+              <div className="flex flex-wrap gap-3">
+                {/* biome-ignore lint/performance/noImgElement: the exact SVGs games embed */}
+                <img
+                  src={`${RAW}/made-with-dotframe-light.svg`}
+                  alt="Made with dotframe, light"
+                  height={32}
+                  className="h-8 w-auto"
+                />
+                {/* biome-ignore lint/performance/noImgElement: the exact SVGs games embed */}
+                <img
+                  src={`${RAW}/made-with-dotframe-dark.svg`}
+                  alt="Made with dotframe, dark"
+                  height={32}
+                  className="h-8 w-auto"
+                />
+              </div>
             </div>
-            <div className="reveal min-w-0 overflow-hidden rounded-lg border border-line bg-ink-2">
-              <div className="flex items-center justify-between border-b border-line px-4 py-2">
-                <span className="font-mono text-xs text-mute">README.md</span>
+            <div className="reveal min-w-0 border-2 border-ink bg-paper shadow-[6px_6px_0_var(--color-ink)]">
+              <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase">
+                <span>README.md</span>
                 <Copy text={BADGE} label="copy badge" />
               </div>
-              <Code lang="html" className="p-5 text-xs leading-5 text-paper/80">
+              <Code lang="html" className="p-5 text-xs leading-5">
                 {BADGE}
               </Code>
             </div>
           </div>
         </section>
-
-        <footer className="flex flex-col gap-3 border-t border-line py-10 font-mono text-xs text-mute sm:flex-row sm:items-center sm:justify-between">
-          <span className="flex items-center gap-2">
-            <Mark className="size-4" /> MIT · made in Lima and Buenos Aires by{" "}
-            <a href="https://crafter.games" className="hover:text-paper">
-              Crafter Games
-            </a>
-          </span>
-          <span>
-            <span className="caret text-dot">▍</span> dotframe skills get core
-          </span>
-        </footer>
       </div>
+
+      <footer className="film">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-14 sm:px-8 md:flex-row md:items-end md:justify-between">
+          <p className="display text-[clamp(3.5rem,9vw,7rem)]">
+            dotframe<span className="text-pencil">.</span>
+          </p>
+          <div className="flex flex-col gap-2 font-mono text-xs font-bold uppercase tracking-wider text-paper/70 md:items-end">
+            <span>MIT · Crafter Games</span>
+            <a href={REPO} className="hover:text-paper">
+              github.com/crafter-games/dotframe
+            </a>
+            <span className="text-pencil">▍ dotframe skills get core</span>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

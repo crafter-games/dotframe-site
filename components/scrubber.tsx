@@ -85,7 +85,7 @@ function step(p: State, frame: number): State {
   return s;
 }
 
-function checksum(s: State) {
+export function checksum(s: State) {
   let h = 2166136261;
   for (const v of [s.x, s.y, s.vx, s.vy, s.star, s.stars, s.seed]) {
     h = Math.imul(h ^ (v & 0xffff), 16777619);
@@ -94,10 +94,88 @@ function checksum(s: State) {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
+const INK = "#17140f";
+const PAPER = "#f1ebdf";
+
+function draw(
+  ctx: CanvasRenderingContext2D,
+  list: State[],
+  frame: number,
+  trail: boolean,
+) {
+  const s = list[frame];
+  ctx.fillStyle = PAPER;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#ddd3c1";
+  for (let x = 4; x < W; x += 8)
+    for (let y = 4; y < H; y += 8) ctx.fillRect(x, y, 1, 1);
+  ctx.fillStyle = INK;
+  ctx.fillRect(0, FLOOR, W, 2);
+  for (const [px, py, pw] of PLATFORMS) ctx.fillRect(px, py, pw, 3);
+  if (trail) {
+    for (let k = 10; k > 0; k--) {
+      const t = list[Math.max(0, frame - k * 2)];
+      ctx.globalAlpha = (10 - k) / 30;
+      ctx.fillRect((t.x >> 4) - 2, (t.y >> 4) - 5, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+  }
+  const sx = s.star;
+  const sy = 40 + ((s.star * 7) % 22);
+  ctx.fillStyle = "#d93a26";
+  ctx.fillRect(sx - 1, sy - 3, 2, 6);
+  ctx.fillRect(sx - 3, sy - 1, 6, 2);
+  ctx.fillStyle = "#6b2cf5";
+  ctx.fillRect((s.x >> 4) - 3, (s.y >> 4) - 6, 6, 6);
+  ctx.fillStyle = PAPER;
+  ctx.fillRect((s.x >> 4) + (s.vx > 0 ? 0 : -2), (s.y >> 4) - 5, 2, 2);
+}
+
+const GAP = 6;
+const THUMBS = [-3, -2, -1, 0, 1, 2, 3];
+
+function Thumb({
+  list,
+  frame,
+  onPick,
+  chosen,
+}: {
+  list: State[];
+  frame: number;
+  onPick: () => void;
+  chosen: boolean;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const ctx = ref.current?.getContext("2d");
+    if (ctx && list[frame]) draw(ctx, list, frame, false);
+  });
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      className="group relative flex min-w-0 flex-col gap-1 text-left"
+      aria-label={`Go to frame ${frame}`}
+    >
+      <canvas
+        ref={ref}
+        width={W}
+        height={H}
+        className={`block aspect-[16/9] w-full [image-rendering:pixelated] ring-1 ring-ink/80 transition ${chosen ? "" : "opacity-80 group-hover:opacity-100"}`}
+      />
+      <span className="truncate font-mono text-[9px] leading-none tracking-wide text-paper/70 tabular-nums">
+        {String(frame).padStart(4, "0")}{" "}
+        <span className="text-paper/40">{checksum(list[frame])}</span>
+      </span>
+      {chosen ? <span className="ring" /> : null}
+    </button>
+  );
+}
+
 export function Scrubber() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const states = useRef<State[]>([START]);
-  const [frame, setFrame] = useState(0);
+  const [frame, setFrame] = useState(240);
   const [playing, setPlaying] = useState(true);
   const box = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
@@ -126,7 +204,7 @@ export function Scrubber() {
       const n = Math.floor(acc / (1000 / 60));
       if (n) {
         acc -= n * (1000 / 60);
-        setFrame((f) => (f + n) % MAX);
+        setFrame((f) => (f + n >= MAX - GAP * 4 ? 240 : f + n));
       }
       id = requestAnimationFrame(tick);
     };
@@ -135,43 +213,19 @@ export function Scrubber() {
   }, [playing]);
 
   const s = at(frame);
+  at(Math.min(MAX - 1, frame + GAP * 3));
 
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
-    if (!ctx) return;
-    ctx.fillStyle = "#131318";
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#1d1d24";
-    for (let x = 0; x < W; x += 8)
-      for (let y = 0; y < H; y += 8) ctx.fillRect(x, y, 1, 1);
-    ctx.fillStyle = "#efebe4";
-    ctx.fillRect(0, FLOOR, W, 1);
-    for (const [px, py, pw] of PLATFORMS) ctx.fillRect(px, py, pw, 2);
-    // trail: the last frames, rebuilt from the same states
-    for (let k = 12; k > 0; k--) {
-      const t = states.current[Math.max(0, frame - k * 2)];
-      ctx.globalAlpha = (12 - k) / 40;
-      ctx.fillStyle = "#a970ff";
-      ctx.fillRect((t.x >> 4) - 2, (t.y >> 4) - 5, 4, 4);
-    }
-    ctx.globalAlpha = 1;
-    const sx = s.star;
-    const sy = 40 + ((s.star * 7) % 22);
-    ctx.fillStyle = "#f7e08e";
-    ctx.fillRect(sx - 1, sy - 3, 2, 6);
-    ctx.fillRect(sx - 3, sy - 1, 6, 2);
-    ctx.fillStyle = "#a970ff";
-    ctx.fillRect((s.x >> 4) - 3, (s.y >> 4) - 6, 6, 6);
-    ctx.fillStyle = "#efebe4";
-    ctx.fillRect((s.x >> 4) + (s.vx > 0 ? 0 : -2), (s.y >> 4) - 5, 2, 2);
-  }, [frame, s]);
+    if (ctx) draw(ctx, states.current, frame, true);
+  }, [frame]);
 
   const seek = useCallback((f: number) => {
     setPlaying(false);
-    setFrame(Math.max(0, Math.min(MAX - 1, f)));
+    setFrame(Math.max(GAP * 3, Math.min(MAX - 1 - GAP * 3, f)));
   }, []);
 
-  // Keys work while the pointer is over the player, so space never steals page scroll elsewhere.
+  // Keys work while the pointer is over the sheet, so space never steals page scroll elsewhere.
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -203,66 +257,85 @@ export function Scrubber() {
   }, [seek]);
 
   return (
-    <div
-      ref={box}
-      className="rounded-lg border border-line bg-ink-2 p-2 shadow-[0_0_0_1px_#0b0b0e,0_30px_80px_-30px_rgb(169_112_255/0.35)]"
-    >
-      <canvas
-        ref={canvas}
-        width={W}
-        height={H}
-        className="block aspect-[16/9] w-full rounded-md [image-rendering:pixelated]"
-        aria-label="A small deterministic game: a violet dot jumps between platforms and collects stars"
-      />
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-2 pt-3 pb-1 font-mono text-xs tabular-nums">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => seek(frame - 1)}
-            className="btn"
-            aria-label="Previous frame"
+    <div ref={box} className="relative">
+      <div className="relative border-2 border-ink bg-paper p-2 shadow-[6px_6px_0_var(--color-ink)]">
+        <canvas
+          ref={canvas}
+          width={W}
+          height={H}
+          className="block aspect-[16/9] w-full [image-rendering:pixelated]"
+          aria-label="A small deterministic game: a violet dot jumps between platforms and collects stars"
+        />
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t-2 border-ink px-1 pt-2 font-mono text-xs tabular-nums">
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={() => seek(frame - 1)}
+              className="h-7 w-7 border-2 border-ink hover:bg-ink hover:text-paper"
+              aria-label="Previous frame"
+            >
+              ◂
+            </button>
+            <button
+              type="button"
+              onClick={() => setPlaying((p) => !p)}
+              className="h-7 w-16 border-y-2 border-ink font-bold uppercase hover:bg-ink hover:text-paper"
+              aria-label={playing ? "Pause" : "Play"}
+            >
+              {playing ? "pause" : "play"}
+            </button>
+            <button
+              type="button"
+              onClick={() => seek(frame + 1)}
+              className="h-7 w-7 border-2 border-ink hover:bg-ink hover:text-paper"
+              aria-label="Next frame"
+            >
+              ▸
+            </button>
+          </div>
+          <span className="font-bold">F {String(frame).padStart(4, "0")}</span>
+          <span className="text-mute">
+            sum <span className="text-ink">{checksum(s)}</span>
+          </span>
+          <span className="text-mute">★ {s.stars}</span>
+          <span
+            className={`ml-auto font-bold ${input(s, frame) ? "text-pencil" : "text-rule"}`}
           >
-            ◂
-          </button>
-          <button
-            type="button"
-            onClick={() => setPlaying((p) => !p)}
-            className="btn w-14"
-            aria-label={playing ? "Pause" : "Play"}
-          >
-            {playing ? "pause" : "play"}
-          </button>
-          <button
-            type="button"
-            onClick={() => seek(frame + 1)}
-            className="btn"
-            aria-label="Next frame"
-          >
-            ▸
-          </button>
+            JUMP
+          </span>
         </div>
-        <span className="text-paper">
-          frame {String(frame).padStart(4, "0")}
-        </span>
-        <span className="text-mute">
-          checksum <span className="text-dot">{checksum(s)}</span>
-        </span>
-        <span className="text-mute">★ {s.stars}</span>
-        <span
-          className={`ml-auto ${input(s, frame) ? "text-sun" : "text-line"}`}
-        >
-          input ▲
-        </span>
+        <input
+          type="range"
+          min={GAP * 3}
+          max={MAX - 1 - GAP * 3}
+          value={frame}
+          onChange={(e) => seek(Number(e.target.value))}
+          className="scrub mt-3 mb-1 w-full"
+          aria-label="Scrub frames"
+        />
       </div>
-      <input
-        type="range"
-        min={0}
-        max={MAX - 1}
-        value={frame}
-        onChange={(e) => seek(Number(e.target.value))}
-        className="scrub mx-2 mt-1 mb-2 w-[calc(100%-1rem)]"
-        aria-label="Scrub frames"
-      />
+
+      <div className="film relative mt-6 -rotate-1 px-3 py-5">
+        <div className="sprockets absolute inset-x-3 top-1.5 h-2" />
+        <div className="grid grid-cols-7 gap-2">
+          {THUMBS.map((o) => {
+            const f = frame + o * GAP;
+            return (
+              <Thumb
+                key={o}
+                list={states.current}
+                frame={f}
+                chosen={o === 0}
+                onPick={() => seek(f)}
+              />
+            );
+          })}
+        </div>
+        <div className="sprockets absolute inset-x-3 bottom-1.5 h-2" />
+      </div>
+      <p className="absolute -right-2 -bottom-10 rotate-[-4deg] font-hand text-lg text-pencil">
+        same frame, same sum
+      </p>
     </div>
   );
 }
