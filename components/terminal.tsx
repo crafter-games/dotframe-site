@@ -22,11 +22,20 @@ export function Terminal({ tabs }: { tabs: { id: string; parts: Tab[] }[] }) {
           </button>
         ))}
       </div>
-      <div className="min-h-[24rem] border-2 border-ink bg-paper p-5 shadow-[6px_6px_0_var(--color-ink)]">
-        {tab.parts.map((p) => (
-          <Code key={p.title} lang={p.lang}>
-            {p.body}
-          </Code>
+      {/* Every panel sits in the same grid cell so the box keeps the tallest height. */}
+      <div className="grid border-2 border-ink bg-paper p-5 shadow-[6px_6px_0_var(--color-ink)]">
+        {tabs.map((t) => (
+          <div
+            key={t.id}
+            className={`col-start-1 row-start-1 min-w-0 ${t.id === tab.id ? "" : "invisible"}`}
+            aria-hidden={t.id !== tab.id}
+          >
+            {t.parts.map((p) => (
+              <Code key={p.title} lang={p.lang}>
+                {p.body}
+              </Code>
+            ))}
+          </div>
         ))}
       </div>
     </div>
