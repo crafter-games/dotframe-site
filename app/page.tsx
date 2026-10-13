@@ -17,7 +17,7 @@ const BADGE = `<a href="https://dotframe.crafter.games">
   </picture>
 </a>`;
 
-// Real output, captured from Espresso perfecto with dotframe 0.3.3.
+// Real output, captured from Espresso perfecto with dotframe 0.3.5.
 const tabs = [
   {
     id: "sim",
@@ -180,7 +180,7 @@ function Edge({ n, children }: { n: string; children: React.ReactNode }) {
       <span className="text-pencil">▸ {n}</span>
       <span className="shrink-0">{children}</span>
       <span className="h-[2px] grow bg-ink" />
-      <span className="hidden text-mute sm:inline">dotframe 0.3.3</span>
+      <span className="hidden text-mute sm:inline">dotframe 0.3.5</span>
     </div>
   );
 }
@@ -220,7 +220,7 @@ export default function Home() {
             dotframe
           </a>
           <span className="hidden text-mute md:inline">
-            roll 0.3.3 · MIT · TypeScript
+            roll 0.3.5 · MIT · TypeScript
           </span>
           <nav className="flex items-center gap-5">
             <a href="#play" className="hidden hover:text-pencil sm:inline">
