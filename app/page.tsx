@@ -141,7 +141,8 @@ const games = [
     name: "Espresso perfecto",
     kind: "Hold, pour, release on the line",
     where: "Web · phones",
-    img: "/media/espresso.gif",
+    img: "/media/espresso.jpg",
+    video: "/media/espresso.mp4",
     href: "https://crafter.run/es/events/hot-reload",
     repo: "https://github.com/crafter-games/espresso",
   },
@@ -150,6 +151,7 @@ const games = [
     kind: "1v1 artillery with Peruvian critters",
     where: "Online · Discord",
     img: "/media/ones.jpg",
+    video: "/media/ones.mp4",
     href: "https://craft-ones.crafter.run",
     repo: "https://github.com/crafter-games/craft-ones",
   },
@@ -158,6 +160,7 @@ const games = [
     kind: "Platform fighter, bring a gamepad",
     where: "Web · local 2P",
     img: "/media/smash.jpg",
+    video: "/media/smash.mp4",
     href: "https://crafter-smash-dotframe.vercel.app",
     repo: "https://github.com/crafter-games/crafter-smash-dotframe",
   },
@@ -329,7 +332,7 @@ export default function Home() {
 
         <section className="pb-28">
           <Edge n="02A">The whole contract</Edge>
-          <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="flex flex-col-reverse gap-12">
             <div className="reveal border-2 border-ink bg-paper shadow-[6px_6px_0_var(--color-ink)]">
               <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase">
                 <span>game.ts</span>
@@ -405,21 +408,34 @@ export default function Home() {
             {games.map((g, i) => (
               <li
                 key={g.name}
-                className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-ink py-5 sm:grid-cols-[2.5rem_9rem_1fr_auto_auto]"
+                className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-5 gap-y-2 border-b border-ink py-5 sm:grid-cols-[2.5rem_15rem_1fr_auto_auto]"
               >
                 <span className="font-mono text-xs font-bold">Nº 0{i + 1}</span>
                 <a
                   href={g.href}
                   className="relative col-span-2 block overflow-hidden border-2 border-ink sm:col-span-1"
                 >
-                  <Image
-                    src={g.img}
-                    alt={`${g.name} gameplay`}
-                    width={480}
-                    height={270}
-                    unoptimized={g.img.endsWith(".gif")}
-                    className={`aspect-video w-full object-cover grayscale ${g.img.endsWith(".gif") ? "object-[50%_30%]" : ""} transition duration-300 group-hover:grayscale-0`}
-                  />
+                  {"video" in g && g.video ? (
+                    <video
+                      src={g.video}
+                      poster={g.img}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      aria-label={`${g.name} gameplay`}
+                      className={`aspect-video w-full object-cover`}
+                    />
+                  ) : (
+                    <Image
+                      src={g.img}
+                      alt={`${g.name}`}
+                      width={480}
+                      height={270}
+                      className="aspect-video w-full object-cover"
+                    />
+                  )}
                 </a>
                 <div className="col-span-2 sm:col-span-1">
                   <a
